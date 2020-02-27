@@ -1,0 +1,9 @@
+#+TITLE: zoned
+#+DESCRIPTION: Tile-based 2D video game map editor
+#+OPTIONS: num:nil
+
+A Lisp/CLIM-based editor for 2D video game maps.
+
+Similar to [[https://www.mapeditor.org/][Tiled]] but hopefully the map format will be simpler to use (at least for Lisp-based games).
+
+Obviously, hugely a work in progress and not really recommended for use by anyone at this point.
