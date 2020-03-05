@@ -16,21 +16,6 @@ See also: `*theme*'"
 
 (defparameter tmp nil)
 
-;;; utilities
-
-(defmacro with-swank-output (&body body)
-  "Run BODY with *standard-output* bound to the swank output (so `print'/etc don't print to the CLIM stream). Useful for debugging."
-  `(let ((*standard-output* *swank-output*))
-     ,@body))
-
-(defun coordinate-to-tile-index (x y &key (tile-width 32) (tile-height 32) (zone-columns 32) (zone-rows 32))
-  "Map an X,Y coordinate to a tile index in the zone. Returns NIL if the X,Y coordinate is out of range of the map."
-  (let ((column (floor (/ x tile-width)))
-        (row (floor (/ y tile-height))))
-    (when (and (<= column zone-columns)
-               (<= row zone-rows))
-      (+ column (* zone-columns row)))))
-
 ;;; gui
 
 (defclass graphical-view (view)
@@ -90,9 +75,6 @@ See also: `*theme*'"
         (draw-rectangle* stream 0 (- y-pos 15) width (+ 4 y-pos) :ink (make-rgb-color 0.4 0.4 1))))
     (draw-text* stream text 0 y-pos)))
 
-(define-presentation-to-command-translator select-current-layer (zone-layer select-current-layer zoned) (layer)
-  (list layer))
-
 ;; (defclass tileset-pane (action-gadget application-pane immediate-repainting-mixin)
 ;;   ())
 
@@ -117,7 +99,6 @@ See also: `*theme*'"
    (zone-pane (make-clim-application-pane
                :name 'zone
                :scroll-bars t
-               ;; :display-time :command-loop
                :incremental-redisplay t
                :display-function 'draw-zone
                :default-view +graphical-view+
@@ -136,13 +117,7 @@ See also: `*theme*'"
                   :display-function 'draw-tileset
                   :default-view +graphical-view+
                   :foreground (get-color :foreground)
-                  :background (get-color :background)))
-   (status-pane (make-clim-application-pane
-                 :name 'status
-                 :scroll-bars nil
-                 :display-function 'draw-status
-                 :foreground (get-color :foreground)
-                 :background (get-color :background))))
+                  :background (get-color :background))))
   (:layouts
    (default
        (vertically ()
@@ -152,9 +127,9 @@ See also: `*theme*'"
                        (2/5 layers-pane)
                        (3/5 tileset-pane)
                        ))))
-         (1/5 int-pane)
-         (100 status-pane))))
-  (:menu-bar t))
+         (1/5 int-pane))))
+  (:menu-bar t)
+  (:pointer-documentation t))
 
 (defmethod (setf current-layer-of) (value (zoned zoned))
   (let ((pane (find-pane-named zoned 'layers-pane)))
@@ -174,22 +149,24 @@ See also: `*theme*'"
   (setf (pane-needs-redisplay (find-pane-named *application-frame* 'zone-pane)) t))
 
 (define-zoned-command (com-test :name t :menu t) ()
-  ;; (let ((tile )))
-  (present tmp))
+  (test-zoned))
 
 (define-zoned-command (paint-tile :name t) ((tile tile) (index integer))
   (setf (tile-elt (layer-elt *application-frame* (current-layer-of *application-frame*))
                   index)
         tile))
 
+(define-presentation-to-command-translator paint-tile (zone-tile paint-tile zoned) (tile index)
+  (list (brush-of *application-frame*)
+        (or index (index-of tile))))
+
 (define-zoned-command (select-current-layer :name t) ((layer '(or zone-layer integer)))
   (setf (current-layer-of *application-frame*) (typecase layer
                                                  (integer layer)
                                                  (zone-layer (position layer (layers-of *application-frame*))))))
 
-(define-presentation-to-command-translator paint-tile (zone-tile paint-tile zoned) (tile index)
-  (list (brush-of *application-frame*)
-        (or index (index-of tile))))
+(define-presentation-to-command-translator select-current-layer (zone-layer select-current-layer zoned) (layer)
+  (list layer))
 
 ;; (define-town-example-command (com-get-distance :name t :menu t
 ;;                                                :keystroke (#\d :meta))
@@ -252,8 +229,6 @@ See also: `*theme*'"
     (dolist* (layer index layers)
       (present layer 'zone-layer :stream stream))))
 
-(defparameter *swank-output* *standard-output*)
-
 (defparameter tmp2 nil)
 
 (defun draw-tileset (frame stream)
@@ -262,9 +237,6 @@ See also: `*theme*'"
     (dolist (tile (tiles-of tileset))
       (let ((tile (make-instance 'tile :name (car tile) :tileset tileset)))
         (present tile 'tile :stream stream)))))
-
-(defun draw-status (frame pane)
-  nil)
 
 ;;; zone methods
 
