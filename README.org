@@ -6,4 +6,28 @@ A Lisp/CLIM-based editor for 2D video game maps.
 
 Similar to [[https://www.mapeditor.org/][Tiled]] but hopefully the map format will be simpler to use (at least for Lisp-based games).
 
-Obviously, hugely a work in progress and not really recommended for use by anyone at this point.
+Obviously, hugely a work in progress and not really recommended for use by anyone at this point. All that's really implemented is basic functionality like adding tiles and layers, and painting tiles. Note that saving zones isn't even implemented yet so there's not really any reason to use this. However, if you want to try it, instructions are below.
+
+* Start
+
+Put in your local-projects directory, then quickload it with [[https://quicklisp.org/][Quicklisp]]:
+
+#+BEGIN_SRC lisp
+(ql:quickload :zoned)
+#+END_SRC
+
+Start the GUI:
+
+#+BEGIN_SRC lisp
+(zoned:zoned)
+#+END_SRC
+
+You should see a window consisting of several panes. The top left pane is the main pane where the zone (map) will be displayed. The top right pane is the layers pane, and the pane below it is the tileset pane. Below the zone and tileset panes is the interactor pane where commands can be entered manually.
+
+Most commands should be accessible via the menu bar. Of course, there is much that remains to be implemented.
+
+To edit the zone, you'll want to add at least one tile to the tileset. This can be done with Edit->Add Tile. Choose a symbol name for the tile and specify the path to its sprite. Once you click OK, you should see the tile appear in the tileset pane. You can click any tile in this pane to select it as your "brush".
+
+To actually use the brush and paint tiles into the zone, you need to add a layer to the zone. Again this can be done from the Edit menu, of course using the Add Layer command. At the moment layers are 32x32 tiles in size and cannot be resized from the GUI. Upon adding the layer, you'll see it appear in the layers pane. It should already be selected but if not you can click its name to select it.
+
+Finally, to paint a tile, you can click on a location in the layer in the zone pane. That location will be painted with the tile you currently have selected in the layer you have selected.

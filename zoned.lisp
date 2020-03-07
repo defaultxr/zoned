@@ -2,6 +2,10 @@
 
 (in-package #:zoned)
 
+;;; utility
+
+(import '(zone::with-swank-output))
+
 ;;; theme
 
 (defparameter *theme* (list
@@ -13,8 +17,6 @@
 
 See also: `*theme*'"
   (getf *theme* element))
-
-(defparameter tmp nil)
 
 ;;; gui
 
@@ -50,8 +52,6 @@ See also: `*theme*'"
                  :transformation (compose-transformations
                                   (make-translation-transformation (elt pos 0) (elt pos 1))
                                   (make-rotation-transformation* rotation (/ width 2) (/ height 2))))))
-
-(defparameter tmp3 nil)
 
 (define-presentation-method present (tile (type tile) stream (view graphical-view) &key)
   (let* ((sprite (sprite-of tile))
@@ -91,11 +91,16 @@ See also: `*theme*'"
    (brush :initform 0 :accessor brush-of)
    (current-layer :initform 0 :reader current-layer-of)
    (image-patterns :initform nil))
+  (:command-table (zoned
+		   :inherit-from (file-command-table
+                                  edit-command-table
+                                  view-command-table
+                                  help-command-table)
+		   :menu (("File" :menu file-command-table)
+                          ("Edit" :menu edit-command-table)
+                          ("View" :menu view-command-table)
+			  ("Help" :menu help-command-table))))
   (:panes
-   (int-pane (make-clim-interactor-pane
-              :name 'interactor
-              :foreground (get-color :foreground)
-              :background (get-color :background)))
    (zone-pane (make-clim-application-pane
                :name 'zone
                :scroll-bars t
@@ -117,7 +122,11 @@ See also: `*theme*'"
                   :display-function 'draw-tileset
                   :default-view +graphical-view+
                   :foreground (get-color :foreground)
-                  :background (get-color :background))))
+                  :background (get-color :background)))
+   (int-pane (make-clim-interactor-pane
+              :name 'interactor
+              :foreground (get-color :foreground)
+              :background (get-color :background))))
   (:layouts
    (default
        (vertically ()
@@ -131,6 +140,9 @@ See also: `*theme*'"
   (:menu-bar t)
   (:pointer-documentation t))
 
+(defmethod frame-standard-output ((frame zoned))
+  (find-pane-named frame 'interactor))
+
 (defmethod (setf current-layer-of) (value (zoned zoned))
   (let ((pane (find-pane-named zoned 'layers-pane)))
     (setf (slot-value zoned 'current-layer) value
@@ -138,18 +150,58 @@ See also: `*theme*'"
     (redisplay-frame-pane zoned pane :force-p t)
     (com-refresh)))
 
-(define-zoned-command (com-quit :name t :menu t) ()
+(define-command-table file-command-table)
+
+(define-command (com-quit :name t :menu t
+                          :command-table file-command-table
+                          :keystroke (#\q :control))
+    ()
   (frame-exit *application-frame*))
 
-(define-zoned-command (com-refresh :name t :menu t) ()
-  nil)
+(define-command-table edit-command-table)
 
-(define-zoned-command (com-add-layer :name t :menu t) ()
+(add-menu-item-to-command-table 'edit-command-table "Zone" :divider nil)
+
+(define-command (com-resize-zone :name t :menu ("Resize Zone" :after "Zone")
+                                 :command-table edit-command-table)
+    ()
+  (format t "~&Sorry, resizing the zone is not yet implemented.~%"))
+
+(add-menu-item-to-command-table 'edit-command-table "Tileset" :divider nil)
+
+(define-command (com-add-tile :name t :menu ("Add Tile" :after "Tileset")
+                              :command-table edit-command-table)
+    ()
+  (let ((frame-input (frame-standard-input *application-frame*))
+        name
+        path)
+    (accepting-values (frame-input :align-prompts t)
+      (setf name (accept 'symbol :stream frame-input
+                         :prompt "Tile name"))
+      (fresh-line)
+      (setf path (accept 'pathname :stream frame-input
+                         :prompt "Sprite path"
+                         ;; :view +cell-unparsed-text-view+
+                         ;; :default (string cell)
+                         )))
+    (add-tile (tileset-of *application-frame*) name path)))
+
+(add-menu-item-to-command-table 'edit-command-table "Layers" :divider nil)
+
+(define-command (com-add-layer :name t :menu ("Add Layer" :after "Layers")
+                               :command-table edit-command-table) ()
   (add-layer *application-frame*)
   (setf (pane-needs-redisplay (find-pane-named *application-frame* 'zone-pane)) t))
 
-(define-zoned-command (com-test :name t :menu t) ()
-  (test-zoned))
+(define-command-table view-command-table)
+
+(define-command (com-refresh :name t :menu t
+                             :command-table view-command-table
+                             :keystroke (#\r :control))
+    ()
+  nil)
+
+(define-command-table help-command-table)
 
 (define-zoned-command (paint-tile :name t) ((tile tile) (index integer))
   (setf (tile-elt (layer-elt *application-frame* (current-layer-of *application-frame*))
@@ -168,19 +220,6 @@ See also: `*theme*'"
 (define-presentation-to-command-translator select-current-layer (zone-layer select-current-layer zoned) (layer)
   (list layer))
 
-;; (define-town-example-command (com-get-distance :name t :menu t
-;;                                                :keystroke (#\d :meta))
-;;     ((town-a town :prompt "Town a")
-;;      (town-b town :prompt "Town b"))
-;;   (notify-user *application-frame*
-;; 	       (format nil "It's ~d pixels from ~a to ~a."
-;; 		       (get-distance-between-points (town-coordinates town-a)
-;; 						    (town-coordinates town-b))
-;; 		       (town-name town-a)
-;; 		       (town-name town-b))
-;; 	       :title "Distance"
-;; 	       :text-style '(:serif :roman 15)))
-
 (define-zoned-command (set-brush :name t) ((tile tile :prompt "Brush"))
   (setf (brush-of *application-frame*) (name-of tile)))
 
@@ -190,12 +229,12 @@ See also: `*theme*'"
 (defmethod draw-layer ((layer zone-tile-layer) index frame stream)
   (dolist (tile (tiles-of layer))
     (updating-output (stream :unique-id (list index (index-of tile)) :id-test #'equal :cache-value (name-of (tile-of tile)))
-      (present tile 'zone-tile))))
+      (present tile 'zone-tile :stream stream))))
 
 (defmethod draw-layer ((layer zone-object-layer) index frame stream)
   (dolist* (object obj-index (objects-of layer))
     (updating-output (stream :unique-id (list index obj-index) :id-test #'equal :cache-value (list (pos-of object)) :cache-test #'equal)
-      (present tile 'zone-object))))
+      (present object 'zone-object :stream stream))))
 
 (defvar *image-patterns* (list)
   "The plist of CLIM patterns generated from loaded image files.")
@@ -228,8 +267,6 @@ See also: `*theme*'"
   (let ((layers (layers-of frame)))
     (dolist* (layer index layers)
       (present layer 'zone-layer :stream stream))))
-
-(defparameter tmp2 nil)
 
 (defun draw-tileset (frame stream)
   (declare (ignorable stream))

@@ -8,4 +8,5 @@
         #:clim
         #:alexandria
         #:mutility
-        #:zone))
+        #:zone)
+  (:export :zoned))
