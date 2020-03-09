@@ -54,13 +54,15 @@ See also: `*theme*'"
                                   (make-rotation-transformation* rotation (/ width 2) (/ height 2))))))
 
 (define-presentation-method present (tile (type tile) stream (view graphical-view) &key)
+  ;; for the tileset view
   (let* ((sprite (sprite-of tile))
          (width (tile-width tile))
          (height (tile-height tile))
+         (cols (floor (/ (rectangle-width (sheet-region stream)) width)))
          (index (index-of tile))
          (pattern (pattern-for sprite)))
     (draw-design stream pattern
-                 :transformation (make-translation-transformation (* width index) 0))))
+                 :transformation (make-translation-transformation (* width (mod index cols)) (* height (floor (/ index cols)))))))
 
 (define-presentation-method present (layer (type zone-layer) stream (view graphical-view) &key)
   (let* ((layers (layers-of *application-frame*))
