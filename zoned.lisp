@@ -230,12 +230,12 @@ See also: `*theme*'"
   (list (brush-of *application-frame*)
         (or index (index-of tile))))
 
-(define-zoned-command (select-current-layer :name t) ((layer '(or zone-layer integer)))
+(define-zoned-command (select-layer :name t) ((layer '(or zone-layer integer)))
   (setf (current-layer-of *application-frame*) (typecase layer
                                                  (integer layer)
                                                  (zone-layer (position layer (layers-of *application-frame*))))))
 
-(define-presentation-to-command-translator select-current-layer (zone-layer select-current-layer zoned) (layer)
+(define-presentation-to-command-translator select-layer (zone-layer select-layer zoned) (layer)
   (list layer))
 
 (define-zoned-command (set-brush :name t) ((tile tile :prompt "Brush"))
