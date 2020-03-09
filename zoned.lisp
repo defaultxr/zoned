@@ -2,9 +2,13 @@
 
 (in-package #:zoned)
 
+(import '(zone::with-swank-output))
+
 ;;; utility
 
-(import '(zone::with-swank-output))
+(defun browse-url (url)
+  "Open URL in a browser."
+  (uiop:launch-program (list (uiop:getenv "BROWSER") url)))
 
 ;;; theme
 
@@ -204,6 +208,18 @@ See also: `*theme*'"
   nil)
 
 (define-command-table help-command-table)
+
+(define-command (com-about :name t :menu t
+                           :command-table help-command-table)
+    ()
+  (let* ((system (asdf:find-system "zoned"))
+         (version (asdf:component-version system)))
+    (format t "~&zoned ~a~%a video game zone editor~%by modula t. worm~%" version)))
+
+(define-command (com-repo :name t :menu t
+                          :command-table help-command-table)
+    ()
+  (browse-url "https://github.com/defaultxr/zoned"))
 
 (define-zoned-command (paint-tile :name t) ((tile tile) (index integer))
   (setf (tile-elt (layer-elt *application-frame* (current-layer-of *application-frame*))
