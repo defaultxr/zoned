@@ -28,6 +28,4 @@ Most commands should be accessible via the menu bar. Of course, there is much th
 
 To edit the zone, you'll want to add at least one tile to the tileset. This can be done with Edit->Add Tile. Choose a symbol name for the tile and specify the path to its sprite. Once you click OK, you should see the tile appear in the tileset pane. You can click any tile in this pane to select it as your "brush".
 
-To actually use the brush and paint tiles into the zone, you need to add a layer to the zone. Again this can be done from the Edit menu, of course using the Add Layer command. At the moment layers are 32x32 tiles in size and cannot be resized from the GUI. Upon adding the layer, you'll see it appear in the layers pane. It should already be selected but if not you can click its name to select it.
-
-Finally, to paint a tile, you can click on a location in the layer in the zone pane. That location will be painted with the tile you currently have selected in the layer you have selected.
+To paint a tile, you can click on a location in the layer in the zone pane. That location will be painted with the tile you currently have selected in the layer you have selected.

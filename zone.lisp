@@ -97,12 +97,15 @@ PATHS-RELATIVE-TO specifies where to make the paths for image filenames relative
     (format stream "(~s :width ~s :height ~s :tileset ~s :layers ~s :properties ~s)" 'zone width height tileset layers properties)))
 
 (defun zone (&key (width 32) (height 32) tileset layers properties)
-  (make-instance 'zone
-                 :width width
-                 :height height
-                 :tileset (or tileset (tileset))
-                 :layers layers
-                 :properties properties))
+  (let ((zone (make-instance 'zone
+                             :width width
+                             :height height
+                             :tileset (or tileset (tileset))
+                             :layers (or layers (list (make-instance 'zone-tile-layer :tiles (make-list (* width height)))))
+                             :properties properties)))
+    (dolist (layer (layers-of zone))
+      (setf (zone-of layer) zone))
+    zone))
 
 (defgeneric layer-elt (zone index)
   (:documentation "Get a layer from ZONE by its index."))
