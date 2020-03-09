@@ -228,7 +228,7 @@ See also: `*theme*'"
 
 (defmethod draw-layer ((layer zone-tile-layer) index frame stream)
   (dolist (tile (tiles-of layer))
-    (updating-output (stream :unique-id (list index (index-of tile)) :id-test #'equal :cache-value (name-of (tile-of tile)))
+    (updating-output (stream :unique-id (list index (index-of tile)) :id-test #'equal :cache-value (name-of (tile-of tile)) :cache-test #'eql)
       (present tile 'zone-tile :stream stream))))
 
 (defmethod draw-layer ((layer zone-object-layer) index frame stream)
