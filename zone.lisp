@@ -76,8 +76,13 @@ PATHS-RELATIVE-TO specifies where to make the paths for image filenames relative
       (setf (cadr v) file)
       (appendf (tiles-of tileset) (list (list name file))))))
 
-;; (defun add-all-files-as-tiles (tileset directory)
-;;   (loop :for ))
+(defun add-directory-images-as-tiles (tileset directory)
+  "Add all the images in DIRECTORY as tiles to TILESET, using their filename sans extension as the tile name."
+  (loop :for file :in (directory (concat directory "/*.*"))
+     :for filename := (namestring file)
+     :for tile-name := (subseq filename (1+ (position #\/ filename :from-end t)) (position #\. filename :from-end t))
+     :if (image-p filename)
+     :do (add-tile tileset (my-intern tile-name :keyword) filename)))
 
 (defclass zone ()
   ((name :initarg :name :initform nil :accessor name-of :type (or nil string) :documentation "The name of the zone.")

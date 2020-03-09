@@ -1,7 +1,6 @@
 (in-package #:zone)
 
-(defvar *path-relative-to* :filename
-  "Where to save the filename paths as relative to when saving a tileset to a file.")
+;;; debug stuff
 
 (defparameter *swank-output* *standard-output*)
 
@@ -10,6 +9,8 @@
   `(let ((*standard-output* *swank-output*))
      ,@body))
 
+;;; math stuff
+
 (defun coordinate-to-tile-index (x y &key (tile-width 32) (tile-height 32) (zone-columns 32) (zone-rows 32))
   "Map an X,Y coordinate to a tile index in the zone. Returns NIL if the X,Y coordinate is out of range of the map."
   (let ((column (floor (/ x tile-width)))
@@ -17,6 +18,8 @@
     (when (and (<= column zone-columns)
                (<= row zone-rows))
       (+ column (* zone-columns row)))))
+
+;;; list stuff
 
 (defun common-subseqs-left (list-1 list-2 &key (test #'equal))
   "Get the number of items that are that same at the beginning of the provided lists.
@@ -27,6 +30,17 @@ See also: `path-relative-to'"
      :for item-2 :in list-2
      :if (not (funcall test item-1 item-2))
      :return i))
+
+;;; file stuff
+
+(defun image-p (filename)
+  "True if FILENAME is a supported image type."
+  (when-let* ((ext-pos (position #\. filename :from-end t))
+              (extension (subseq filename (1+ ext-pos))))
+    (member (my-intern extension :keyword) (list :png :gif))))
+
+(defvar *path-relative-to* :filename
+  "Where to save the filename paths as relative to when saving a tileset to a file.")
 
 (defun path-relative-to (filename relative-to)
   "Return FILENAME as relative to RELATIVE-TO.

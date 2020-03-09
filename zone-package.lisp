@@ -3,6 +3,7 @@
 (defpackage #:zone
   (:use #:cl
         #:alexandria
+        #:mutility
         #:split-sequence)
   (:export
    #:tile
@@ -19,6 +20,7 @@
    #:save-tileset
    #:tile-elt
    #:add-tile
+   #:add-directory-images-as-tiles
 
    #:zone
    #:width
