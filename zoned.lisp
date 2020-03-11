@@ -11,8 +11,9 @@
 ;;; theme
 
 (defparameter *theme* (list
-                       :background (make-gray-color 0.2)
-                       :foreground +white+))
+                       :background (make-gray-color 0.3)
+                       :foreground +black+
+                       :grid (make-gray-color 0.8)))
 
 (defun get-color (element)
   "Get the theme's color for a type of GUI element, i.e. :foreground, :background, :accent, etc.
@@ -94,7 +95,8 @@ See also: `*theme*'"
   ((zone :initform (zone) :accessor zone-of)
    (brush :initform 0 :accessor brush-of)
    (current-layer :initform 0 :reader current-layer-of)
-   (image-patterns :initform nil))
+   (image-patterns :initform nil)
+   (draw-grid-p :initform t :accessor draw-grid-p :documentation "Whether to draw the grid for the current layer."))
   (:command-table (zoned
 		   :inherit-from (file-command-table
                                   edit-command-table
@@ -287,9 +289,36 @@ See also: `*theme*'"
           (push image *image-patterns*)
           pattern))))
 
+(defun draw-grid (frame stream)
+  (with-swank-output
+    (print 'draw-grid)
+    (print frame))
+  (let* ((color (get-color :grid))
+         (zone (zone-of frame))
+         ;; number of rows/columns in the zone:
+         (zone-width (width zone))
+         (zone-height (height zone))
+         ;; tile dimensions in pixels:
+         (tile-width (tile-width zone))
+         (tile-height (tile-height zone))
+         ;; zone dimensions in pixels:
+         (map-width (* zone-width tile-width))
+         (map-height (* zone-height tile-height)))
+    (dotimes (x (1+ zone-width))
+      (let ((x-pos (* x tile-width)))
+        (draw-line* stream x-pos 0 x-pos map-height
+                    :ink color)))
+    (dotimes (y (1+ zone-width))
+      (let ((y-pos (* y tile-width)))
+        (draw-line* stream 0 y-pos map-width y-pos
+                    :ink color)))))
+
 (defun draw-zone (frame stream)
   (dolist* (layer index (layers-of frame))
     ;; (updating-output (stream :unique-id index :cache-value layer))
+    (when (and (draw-grid-p frame)
+               (current-layer-of frame))
+      (draw-grid frame stream))
     (draw-layer layer index frame stream)))
 
 (defun draw-layers (frame stream)
