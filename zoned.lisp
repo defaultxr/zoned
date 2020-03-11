@@ -13,8 +13,8 @@
 ;;; theme
 
 (defparameter *theme* (list
-                       :background +white+
-                       :foreground +black+))
+                       :background (make-gray-color 0.2)
+                       :foreground +white+))
 
 (defun get-color (element)
   "Get the theme's color for a type of GUI element, i.e. :foreground, :background, :accent, etc.
