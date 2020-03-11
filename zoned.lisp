@@ -186,11 +186,15 @@ See also: `*theme*'"
       (setf path (accept 'pathname :prompt "Sprite path"
                          :default (if-let ((tile (lastcar (tiles-of (tileset-of (zone-of (zoned)))))))
                                     (directory-namestring (cadr tile))
-                                    (or (uiop:getenv "HOME")
+                                    (or #+quicklisp (when-let ((dir (car ql:*local-project-directories*)))
+                                                      (namestring dir))
+                                        (uiop:getenv "HOME")
                                         ""))))
       (fresh-line)
-      (setf name (or (accept 'symbol :prompt "Tile name (optional)")
-                     (file-name-sans-suffix (namestring path)))))
+      (setf name (let ((sym (accept 'symbol :prompt "Tile name (optional)")))
+                   (if (null sym)
+                       (my-intern (file-name-sans-suffix (namestring path)) :keyword)
+                       sym))))
     (add-tile (tileset-of *application-frame*) name path)))
 
 (add-menu-item-to-command-table 'edit-command-table "Layers" :divider nil)
