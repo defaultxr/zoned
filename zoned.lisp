@@ -283,16 +283,13 @@ See also: `*theme*'"
            :return pattern)
         (let ((pattern (etypecase image
                          (string (make-pattern-from-bitmap-file image))
-                         (null (make-pattern (make-array (list 32 32)) ;; FIX: use tile-widht and tile-height
+                         (null (make-pattern (make-array (list 32 32)) ;; FIX: use tile-width and tile-height
                                              (make-list (* 32 32) :initial-element (make-opacity 0.0)))))))
           (push pattern *image-patterns*)
           (push image *image-patterns*)
           pattern))))
 
 (defun draw-grid (frame stream)
-  (with-swank-output
-    (print 'draw-grid)
-    (print frame))
   (let* ((color (get-color :grid))
          (zone (zone-of frame))
          ;; number of rows/columns in the zone:
