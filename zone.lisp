@@ -149,6 +149,9 @@ PATHS-RELATIVE-TO specifies where to make the paths for image filenames relative
 (defmethod tile-height ((this zone-layer))
   (tile-height (tileset-of (zone-of this))))
 
+(defmethod index-of ((this zone-layer))
+  (position this (layers-of (zone-of this))))
+
 (defclass zone-tile-layer (zone-layer)
   ((tiles :initarg :tiles :initform nil :documentation "The list of tiles in the layer.")
    (zone :initarg :zone :reader zone-of :type zone :documentation "The zone that the layer is a part of."))
