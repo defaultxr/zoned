@@ -178,18 +178,16 @@ See also: `*theme*'"
 (define-command (com-add-tile :name t :menu ("Add Tile" :after "Tileset")
                               :command-table edit-command-table)
     ()
-  (let ((frame-input (frame-standard-input *application-frame*))
-        name
-        path)
-    (accepting-values (frame-input :align-prompts t)
-      (setf name (accept 'symbol :stream frame-input
-                         :prompt "Tile name"))
+  (let (name path)
+    (accepting-values (t :align-prompts t)
+      (setf path (accept 'pathname :prompt "Sprite path"
+                         :default (if-let ((tile (lastcar (tiles-of (tileset-of (zone-of (zoned)))))))
+                                    (directory-namestring (cadr tile))
+                                    (or (uiop:getenv "HOME")
+                                        ""))))
       (fresh-line)
-      (setf path (accept 'pathname :stream frame-input
-                         :prompt "Sprite path"
-                         ;; :view +cell-unparsed-text-view+
-                         ;; :default (string cell)
-                         )))
+      (setf name (or (accept 'symbol :prompt "Tile name (optional)")
+                     (file-name-sans-suffix path))))
     (add-tile (tileset-of *application-frame*) name path)))
 
 (add-menu-item-to-command-table 'edit-command-table "Layers" :divider nil)
