@@ -191,7 +191,7 @@ See also: `*theme*'"
                                         ""))))
       (fresh-line)
       (setf name (or (accept 'symbol :prompt "Tile name (optional)")
-                     (file-name-sans-suffix path))))
+                     (file-name-sans-suffix (namestring path)))))
     (add-tile (tileset-of *application-frame*) name path)))
 
 (add-menu-item-to-command-table 'edit-command-table "Layers" :divider nil)
