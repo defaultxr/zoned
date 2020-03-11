@@ -224,7 +224,11 @@ See also: `*theme*'"
                   index)
         tile))
 
-(define-presentation-to-command-translator paint-tile (zone-tile paint-tile zoned) (tile index)
+(define-presentation-to-command-translator paint-tile (zone-tile paint-tile zoned
+                                                                 :pointer-documentation
+                                                                 ((tile index stream)
+                                                                  (format stream "Paint tile ~a with brush ~a" (or index (index-of tile)) (brush-of *application-frame*))))
+    (tile index)
   (list (brush-of *application-frame*)
         (or index (index-of tile))))
 
@@ -233,13 +237,21 @@ See also: `*theme*'"
                                                  (integer layer)
                                                  (zone-layer (position layer (layers-of *application-frame*))))))
 
-(define-presentation-to-command-translator select-layer (zone-layer select-layer zoned) (layer)
+(define-presentation-to-command-translator select-layer (zone-layer select-layer zoned
+                                                                    :pointer-documentation
+                                                                    ((layer stream)
+                                                                     (format stream "Select layer ~a" (index-of layer))))
+    (layer)
   (list layer))
 
 (define-zoned-command (set-brush :name t) ((tile tile :prompt "Brush"))
   (setf (brush-of *application-frame*) (name-of tile)))
 
-(define-presentation-to-command-translator set-brush (tile set-brush zoned) (tile)
+(define-presentation-to-command-translator set-brush (tile set-brush zoned
+                                                           :pointer-documentation
+                                                           ((tile stream)
+                                                            (format stream "Set brush to ~a" (name-of tile))))
+    (tile)
   (list tile))
 
 (defmethod draw-layer ((layer zone-tile-layer) index frame stream)
