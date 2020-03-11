@@ -9,4 +9,7 @@
         #:alexandria
         #:mutility
         #:zone)
+  (:import-from #:zone
+                :with-swank-output
+                :file-name-sans-suffix)
   (:export :zoned))

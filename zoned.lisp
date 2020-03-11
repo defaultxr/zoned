@@ -2,9 +2,6 @@
 
 (in-package #:zoned)
 
-(import '(zone::with-swank-output
-          zone::file-name-sans-suffix))
-
 ;;; utility
 
 (defun browse-url (url)
