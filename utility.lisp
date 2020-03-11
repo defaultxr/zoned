@@ -39,6 +39,15 @@ See also: `path-relative-to'"
               (extension (subseq filename (1+ ext-pos))))
     (member (my-intern extension :keyword) (list :png :gif))))
 
+(defun file-name-sans-suffix (filename)
+  "Get the name of FILENAME sans its file extension.
+
+Example:
+
+;; (file-name-sans-suffix \"/home/blah/foo.txt\")
+;; ;=> \"foo\""
+  (subseq filename (1+ (position #\/ filename :from-end t)) (position #\. filename :from-end t)))
+
 (defvar *path-relative-to* :filename
   "Where to save the filename paths as relative to when saving a tileset to a file.")
 

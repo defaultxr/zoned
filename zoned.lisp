@@ -2,7 +2,8 @@
 
 (in-package #:zoned)
 
-(import '(zone::with-swank-output))
+(import '(zone::with-swank-output
+          zone::file-name-sans-suffix))
 
 ;;; utility
 
