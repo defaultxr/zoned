@@ -136,9 +136,15 @@ PATHS-RELATIVE-TO specifies where to make the paths for image filenames relative
 (defmethod remove-layer ((zone zone) index)
   (setf (layers-of zone) (delete (layer-elt zone index) (layers-of zone))))
 
+(defmethod tile-width ((this zone))
+  (tile-width (tileset-of this)))
+
+(defmethod tile-height ((this zone))
+  (tile-height (tileset-of this)))
+
 (defclass zone-layer ()
   ((name :initarg :name :initform nil :accessor name-of :type (or null string) :documentation "The name of the layer.")
-   (zone :initarg :zone :accessor zone-of :type zone :documentation "The zone that this layer is associated with.")))
+   (zone :initarg :zone :accessor zone-of :type zone :documentation "The zone that the layer is a part of.")))
 
 (defmethod tileset-of ((this zone-layer))
   (slot-value (zone-of this) 'tileset))
@@ -153,8 +159,7 @@ PATHS-RELATIVE-TO specifies where to make the paths for image filenames relative
   (position this (layers-of (zone-of this))))
 
 (defclass zone-tile-layer (zone-layer)
-  ((tiles :initarg :tiles :initform nil :documentation "The list of tiles in the layer.")
-   (zone :initarg :zone :reader zone-of :type zone :documentation "The zone that the layer is a part of."))
+  ((tiles :initarg :tiles :initform nil :documentation "The list of tiles in the layer."))
   (:documentation "A zone layer that is aligned to the tile grid."))
 
 (defmethod print-object ((this zone-tile-layer) stream)
