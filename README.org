@@ -4,7 +4,7 @@
 
 A Lisp/CLIM-based editor for 2D video game maps.
 
-Similar to [[https://www.mapeditor.org/][Tiled]] but hopefully the map format will be simpler to use (at least for Lisp-based games).
+Similar to [[https://www.mapeditor.org/][Tiled]] but hopefully the map format will be simpler to use--at least for Lisp-based games, although in the future JSON and XML exporting will be added as options.
 
 Obviously, hugely a work in progress and not really recommended for use by anyone at this point. All that's really implemented is basic functionality like adding tiles and layers, and painting tiles. Note that saving zones isn't even implemented yet so there's not really any reason to use this. However, if you want to try it, instructions are below.
 
@@ -29,3 +29,20 @@ Most commands should be accessible via the menu bar. Of course, there is much th
 To edit the zone, you'll want to add at least one tile to the tileset. This can be done with Edit->Add Tile. Choose a symbol name for the tile and specify the path to its sprite. Once you click OK, you should see the tile appear in the tileset pane. You can click any tile in this pane to select it as your "brush".
 
 To paint a tile, you can click on a location in the layer in the zone pane. That location will be painted with the tile you currently have selected in the layer you have selected.
+
+* Using
+
+If you actually want to use the zones created with zoned in your game, you probably don't want to require the full ~zoned~ system, since that will pull in all of McCLIM as well. Instead, add the ~zoned/zone~ as a dependency for your project, which only includes the ~zone~ package/classes/functionality.
+
+* Future
+
+Features I'd like to implement in the future, in no order:
+
+- undo/redo
+- export to JSON, XML
+- object layers - non-grid-based layers consisting of objects that can be placed arbitrarily in the zone
+  - objects can be rotated
+  - objects can be named
+  - objects can have arbitrary additional (meta)data
+- "world" support - define neighboring zones, optionally displaying them simultaneously in the zone view
+- real time editing - load the full zoned system into your game and use it to edit the zone while the game is running instead of having to manually reload.
