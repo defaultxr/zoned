@@ -92,10 +92,12 @@ See also: `*theme*'"
 ;;   (draw-tileset (pane-frame this) this))
 
 (define-application-frame zoned ()
-  ((zone :initform (zone) :accessor zone-of)
-   (brush :initform 0 :accessor brush-of)
-   (current-layer :initform 0 :reader current-layer-of)
-   (image-patterns :initform nil)
+  ((zone :initform (zone) :accessor zone-of :documentation "The actual zone object being edited.")
+   (brush :initform nil :accessor brush-of :documentation "The current brush to paint tiles with. Can be either an integer representing the index into the tileset, or NIL, representing the eraser.")
+   (current-layer :initform 0 :reader current-layer-of :documentation "The layer of the zone that we are currently editing.")
+   (image-patterns :initform nil :documentation "The CLIM image patterns for the tile sprites.")
+   (zone-filename :initform nil :accessor filename-of :documentation "The name of the file that the zone should be written to.")
+   (modified-p :initform nil :accessor modified-p :documentation "Whether the zone has been modified since the last save.")
    (draw-grid-p :initform t :accessor draw-grid-p :documentation "Whether to draw the grid for the current layer."))
   (:command-table (zoned
 		   :inherit-from (file-command-table
@@ -226,15 +228,20 @@ See also: `*theme*'"
     ()
   (browse-url "https://github.com/defaultxr/zoned"))
 
-(define-zoned-command (paint-tile :name t) ((tile tile) (index integer))
+(define-zoned-command (paint-tile :name t) ((brush tile) (index integer))
   (setf (tile-elt (layer-elt *application-frame* (current-layer-of *application-frame*))
                   index)
-        tile))
+        brush))
 
-(define-presentation-to-command-translator paint-tile (zone-tile paint-tile zoned
-                                                                 :pointer-documentation
-                                                                 ((tile index stream)
-                                                                  (format stream "Paint tile ~a with brush ~a" (or index (index-of tile)) (brush-of *application-frame*))))
+(define-presentation-to-command-translator paint-tile
+    (zone-tile paint-tile zoned
+               :pointer-documentation
+               ((tile index stream)
+                (let ((brush (brush-of *application-frame*))
+                      (index (or index (index-of tile))))
+                  (if brush
+                      (format stream "Paint tile ~a with brush ~a" index brush)
+                      (format stream "Erase tile ~a" index)))))
     (tile index)
   (list (brush-of *application-frame*)
         (or index (index-of tile))))
@@ -244,10 +251,11 @@ See also: `*theme*'"
                                                  (integer layer)
                                                  (zone-layer (position layer (layers-of *application-frame*))))))
 
-(define-presentation-to-command-translator select-layer (zone-layer select-layer zoned
-                                                                    :pointer-documentation
-                                                                    ((layer stream)
-                                                                     (format stream "Select layer ~a" (index-of layer))))
+(define-presentation-to-command-translator select-layer
+    (zone-layer select-layer zoned
+                :pointer-documentation
+                ((layer stream)
+                 (format stream "Select layer ~a" (index-of layer))))
     (layer)
   (list layer))
 
