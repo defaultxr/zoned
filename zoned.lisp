@@ -45,10 +45,8 @@ See also: `*theme*'"
 
 (define-presentation-method present (object (type zone-object) stream (view graphical-view) &key)
   (let* ((sprite (sprite-of object))
-         (width 32 ;; (tile-width object)
-           )
-         (height 32 ;; (tile-height object)
-           )
+         (width (tile-width object))
+         (height (tile-height object))
          (pos (pos-of object))
          (rotation 0))
     (draw-design stream (pattern-for sprite)
@@ -56,13 +54,19 @@ See also: `*theme*'"
                                   (make-translation-transformation (elt pos 0) (elt pos 1))
                                   (make-rotation-transformation* rotation (/ width 2) (/ height 2))))))
 
+(define-presentation-method present ((tile null) (type tile) stream (view graphical-view) &key)
+  (let ((width (tile-width (tileset-of (pane-frame stream))))
+        (height (tile-height (tileset-of (pane-frame stream)))))
+    (draw-rectangle* stream 0 0 width height :ink +pink1+)
+    (draw-text* stream "erase" (/ width 2) (/ height 2) :align-x :center :align-y :center :text-size 11)))
+
 (define-presentation-method present (tile (type tile) stream (view graphical-view) &key)
   ;; for the tileset view
   (let* ((sprite (sprite-of tile))
          (width (tile-width tile))
          (height (tile-height tile))
          (cols (floor (/ (rectangle-width (sheet-region stream)) width)))
-         (index (index-of tile))
+         (index (1+ (index-of tile)))
          (pattern (pattern-for sprite)))
     (draw-design stream pattern
                  :transformation (make-translation-transformation (* width (mod index cols)) (* height (floor (/ index cols)))))))
@@ -265,7 +269,9 @@ See also: `*theme*'"
 (define-presentation-to-command-translator set-brush (tile set-brush zoned
                                                            :pointer-documentation
                                                            ((tile stream)
-                                                            (format stream "Set brush to ~a" (name-of tile))))
+                                                            (if tile
+                                                                (format stream "Set brush to ~a" (name-of tile))
+                                                                (format stream "Use eraser tool"))))
     (tile)
   (list tile))
 
@@ -338,11 +344,15 @@ See also: `*theme*'"
 (defun draw-tileset (frame stream)
   (declare (ignorable stream))
   (let ((tileset (tileset-of frame)))
+    (present nil 'tile :stream stream)
     (dolist (tile (tiles-of tileset))
       (let ((tile (make-instance 'tile :name (car tile) :tileset tileset)))
         (present tile 'tile :stream stream)))))
 
 ;;; zone methods
+
+(defmethod name-of ((this null))
+  nil)
 
 (defmethod name-of ((this zoned))
   (name-of (zone-of this)))
