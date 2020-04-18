@@ -3,8 +3,7 @@
 (defpackage #:zone
   (:use #:cl
         #:alexandria
-        #:mutility
-        #:split-sequence)
+        #:mutility)
   (:export
    #:tile
    #:name-of

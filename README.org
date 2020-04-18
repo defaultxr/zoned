@@ -1,6 +1,4 @@
 #+TITLE: zoned
-#+DESCRIPTION: Tile-based 2D video game map editor
-#+OPTIONS: num:nil
 
 A Lisp/CLIM-based editor for 2D video game maps.
 

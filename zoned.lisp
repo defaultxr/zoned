@@ -2,18 +2,12 @@
 
 (in-package #:zoned)
 
-;;; utility
-
-(defun browse-url (url)
-  "Open URL in a browser."
-  (uiop:launch-program (list (uiop:getenv "BROWSER") url)))
-
 ;;; theme
 
-(defparameter *theme* (list
-                       :background (make-gray-color 0.3)
-                       :foreground +black+
-                       :grid (make-gray-color 0.8)))
+(defvar *theme* (list
+                 :background (make-gray-color 0.3)
+                 :foreground +black+
+                 :grid (make-gray-color 0.8)))
 
 (defun get-color (element)
   "Get the theme's color for a type of GUI element, i.e. :foreground, :background, :accent, etc.
@@ -104,14 +98,14 @@ See also: `*theme*'"
    (modified-p :initform nil :accessor modified-p :documentation "Whether the zone has been modified since the last save.")
    (draw-grid-p :initform t :accessor draw-grid-p :documentation "Whether to draw the grid for the current layer."))
   (:command-table (zoned
-		   :inherit-from (file-command-table
-                                  edit-command-table
-                                  view-command-table
-                                  help-command-table)
-		   :menu (("File" :menu file-command-table)
-                          ("Edit" :menu edit-command-table)
-                          ("View" :menu view-command-table)
-			  ("Help" :menu help-command-table))))
+		   :inherit-from (zoned-file-command-table
+                                  zoned-edit-command-table
+                                  zoned-view-command-table
+                                  zoned-help-command-table)
+		   :menu (("File" :menu zoned-file-command-table)
+                          ("Edit" :menu zoned-edit-command-table)
+                          ("View" :menu zoned-view-command-table)
+			  ("Help" :menu zoned-help-command-table))))
   (:panes
    (zone-pane (make-clim-application-pane
                :name 'zone
@@ -155,8 +149,8 @@ See also: `*theme*'"
   (:menu-bar t)
   (:pointer-documentation t))
 
-(defmethod frame-standard-output ((frame zoned))
-  (find-pane-named frame 'interactor))
+;; (defmethod frame-standard-output ((frame zoned))
+;;   (find-pane-named frame 'interactor))
 
 (defmethod (setf current-layer-of) (value (zoned zoned))
   (let ((pane (find-pane-named zoned 'layers-pane)))
@@ -165,27 +159,58 @@ See also: `*theme*'"
     (redisplay-frame-pane zoned pane :force-p t)
     (com-refresh)))
 
-(define-command-table file-command-table)
+(define-command-table zoned-file-command-table)
+
+(define-command (com-new :name t :menu t
+                         :command-table zoned-file-command-table
+                         :keystroke (#\n :control))
+    ()
+  (setf (zone-of *application-frame*) (zone)))
+
+(define-command (com-save :name t :menu t
+                          :command-table zoned-file-command-table
+                          :keystroke (#\s :control))
+    ()
+  (unless (filename-of *application-frame*)
+    (let ((frame-input (frame-standard-input *application-frame*)))
+      (accepting-values (frame-input :align-prompts t)
+        (setf (filename-of *application-frame*)
+              (accept 'pathname :stream frame-input
+                      :prompt "Filename")))))
+  (with-open-file (stream (filename-of *application-frame*) :direction :output :if-exists :supersede :if-does-not-exist :create)
+    ;; (let ((*print-readably* t)))
+    (write (zone-of *application-frame*) :stream stream :escape t :readably t))
+  (setf (modified-p *application-frame*) nil))
+
+(define-command (com-load :name t :menu t
+                          :command-table zoned-file-command-table
+                          :keystroke (#\o :control))
+    ()
+  (format t "~&Sorry, loading is not yet implemented."))
 
 (define-command (com-quit :name t :menu t
-                          :command-table file-command-table
+                          :command-table zoned-file-command-table
                           :keystroke (#\q :control))
     ()
   (frame-exit *application-frame*))
 
-(define-command-table edit-command-table)
+(define-command-table zoned-edit-command-table)
 
-(add-menu-item-to-command-table 'edit-command-table "Zone" :divider nil)
+(add-menu-item-to-command-table 'zoned-edit-command-table "Zone" :divider nil)
 
 (define-command (com-resize-zone :name t :menu ("Resize Zone" :after "Zone")
-                                 :command-table edit-command-table)
+                                 :command-table zoned-edit-command-table)
     ()
-  (format t "~&Sorry, resizing the zone is not yet implemented.~%"))
+  (format t "~&Note: Currently, resizing the zone will add to or remove from the bottom right of the zone.~%")
+  (accepting-values (t :align-prompts t)
+    (accept '(integer 1) :default (width (zone-of *application-frame*)) :prompt "Width")
+    (fresh-line)
+    (accept '(integer 1) :default (height (zone-of *application-frame*)) :prompt "Height")))
 
-(add-menu-item-to-command-table 'edit-command-table "Tileset" :divider nil)
+(add-menu-item-to-command-table 'zoned-edit-command-table "Tileset" :divider nil)
 
 (define-command (com-add-tile :name t :menu ("Add Tile" :after "Tileset")
-                              :command-table edit-command-table)
+                              :command-table zoned-edit-command-table)
     ()
   (let (name path)
     (accepting-values (t :align-prompts t)
@@ -203,32 +228,38 @@ See also: `*theme*'"
                        sym))))
     (add-tile (tileset-of *application-frame*) name path)))
 
-(add-menu-item-to-command-table 'edit-command-table "Layers" :divider nil)
+(add-menu-item-to-command-table 'zoned-edit-command-table "Layers" :divider nil)
 
 (define-command (com-add-layer :name t :menu ("Add Layer" :after "Layers")
-                               :command-table edit-command-table) ()
+                               :command-table zoned-edit-command-table)
+    ()
   (add-layer *application-frame*)
   (setf (pane-needs-redisplay (find-pane-named *application-frame* 'zone-pane)) t))
 
-(define-command-table view-command-table)
+(define-command-table zoned-view-command-table)
 
 (define-command (com-refresh :name t :menu t
-                             :command-table view-command-table
+                             :command-table zoned-view-command-table
                              :keystroke (#\r :control))
     ()
   nil)
 
-(define-command-table help-command-table)
+(define-command-table zoned-help-command-table)
 
 (define-command (com-about :name t :menu t
-                           :command-table help-command-table)
+                           :command-table zoned-help-command-table)
     ()
   (let* ((system (asdf:find-system "zoned"))
          (version (asdf:component-version system)))
     (format t "~&zoned ~a~%a video game zone editor~%by modula t. worm~%" version)))
 
+(define-command (com-readme :name "README" :menu t
+                            :command-table zoned-help-command-table)
+    ()
+  (ed (asdf:system-relative-pathname :zoned "README.org")))
+
 (define-command (com-repo :name t :menu t
-                          :command-table help-command-table)
+                          :command-table zoned-help-command-table)
     ()
   (browse-url "https://github.com/defaultxr/zoned"))
 
@@ -422,8 +453,9 @@ See also: `*theme*'"
 
 (defmethod (setf zone-of) (value (this zoned))
   (setf (slot-value this 'zone) value)
-  (dolist (pane (list 'layers-pane 'zone-pane 'tileset-pane 'status-pane))
-    (setf (pane-needs-redisplay (find-pane-named *application-frame* pane)) t)))
+  (dolist (pane (list 'layers-pane 'zone-pane 'tileset-pane ;; 'status-pane
+                      ))
+    (setf (pane-needs-redisplay (find-pane-named this pane)) t)))
 
 ;;;
 

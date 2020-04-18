@@ -20,7 +20,6 @@
   :version "0.1"
   :serial t
   :depends-on (#:alexandria
-               #:split-sequence
                #:cl-strings)
   :components ((:file "zone-package")
                (:file "utility")
