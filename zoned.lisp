@@ -261,7 +261,7 @@ See also: `*theme*'"
 (define-command (com-repo :name t :menu t
                           :command-table zoned-help-command-table)
     ()
-  (browse-url "https://github.com/defaultxr/zoned"))
+  (open-url "https://github.com/defaultxr/zoned"))
 
 (define-zoned-command (paint-tile :name t) ((brush tile) (index integer))
   (setf (tile-elt (layer-elt *application-frame* (current-layer-of *application-frame*))
