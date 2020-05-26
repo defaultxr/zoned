@@ -1,10 +1,15 @@
 ;;;; zoned.asd
 
 (asdf:defsystem #:zoned
+  :name "zoned"
   :description "Tile-based 2D video game map editor"
   :author "modula t. <defaultxr at gmail>"
   :license "MIT"
   :version "0.1"
+  :homepage "https://github.com/defaultxr/zoned"
+  :bug-tracker "https://github.com/defaultxr/zoned/issues"
+  :mailto "defaultxr at gmail dot com"
+  :source-control (:git "git@github.com:defaultxr/zoned.git")
   :serial t
   :depends-on (#:mutility
                #:zoned/zone
