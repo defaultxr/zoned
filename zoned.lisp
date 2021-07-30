@@ -312,7 +312,7 @@ See also: `*theme*'"
       (present tile 'zone-tile :stream stream))))
 
 (defmethod draw-layer ((layer zone-object-layer) index frame stream)
-  (dolist* (object obj-index (objects-of layer))
+  (dolist* (obj-index object (objects-of layer))
     (updating-output (stream :unique-id (list index obj-index) :id-test #'equal :cache-value (list (pos-of object)) :cache-test #'equal)
       (present object 'zone-object :stream stream))))
 
@@ -360,7 +360,7 @@ See also: `*theme*'"
                     :ink color)))))
 
 (defun draw-zone (frame stream)
-  (dolist* (layer index (layers-of frame))
+  (dolist* (index layer (layers-of frame))
     ;; (updating-output (stream :unique-id index :cache-value layer))
     (when (and (draw-grid-p frame)
                (current-layer-of frame))
@@ -369,7 +369,7 @@ See also: `*theme*'"
 
 (defun draw-layers (frame stream)
   (let ((layers (layers-of frame)))
-    (dolist* (layer index layers)
+    (dolist* (index layer layers)
       (present layer 'zone-layer :stream stream))))
 
 (defun draw-tileset (frame stream)
