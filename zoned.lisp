@@ -2,7 +2,10 @@
 
 (in-package #:zoned)
 
-;;; theme
+;;; FIX: look into print-items system for printing?:
+;;; https://40ants.com/lisp-project-of-the-day/2020/07/0145-utilities.print-items.html
+
+;;; theme (FIX: move to mutility?)
 
 (defvar *theme* (list
                  :background (make-gray-color 0.3)
@@ -246,22 +249,27 @@ See also: `*theme*'"
 
 (define-command-table zoned-help-command-table)
 
-(define-command (com-about :name t :menu t
-                           :command-table zoned-help-command-table)
-    ()
-  (let* ((system (asdf:find-system "zoned"))
-         (version (asdf:component-version system)))
-    (format t "~&zoned ~a~%a video game zone editor~%by modula t. worm~%" version)))
-
 (define-command (com-readme :name "README" :menu t
                             :command-table zoned-help-command-table)
     ()
   (ed (asdf:system-relative-pathname :zoned "README.org")))
 
 (define-command (com-repo :name t :menu t
-                          :command-table zoned-help-command-table)
+                          :command-table zoned-common-help-command-table)
     ()
-  (open-url "https://github.com/defaultxr/zoned"))
+  (open-url (asdf:system-homepage (asdf:find-system :zoned t))))
+
+(define-command (com-bugs :name t :menu t
+                          :command-table zoned-common-help-command-table)
+    ()
+  (open-url (asdf:system-bug-tracker (asdf:find-system :zoned t))))
+
+(define-command (com-about :name t :menu t
+                           :command-table zoned-help-command-table)
+    ()
+  (let* ((system (asdf:find-system "zoned"))
+         (version (asdf:component-version system)))
+    (format t "~&zoned ~a~%video game zone editor~%a struct.ws project by modula t. worm and contributors~%" version)))
 
 (define-zoned-command (paint-tile :name t) ((brush tile) (index integer))
   (setf (tile-elt (layer-elt *application-frame* (current-layer-of *application-frame*))
