@@ -227,7 +227,7 @@ See also: `*theme*'"
       (fresh-line)
       (setf name (let ((sym (accept 'symbol :prompt "Tile name (optional)")))
                    (if (null sym)
-                       (my-intern (file-name-sans-suffix (namestring path)) :keyword)
+                       (upcase-intern (file-name-sans-suffix (namestring path)) :keyword)
                        sym))))
     (add-tile (tileset-of *application-frame*) name path)))
 

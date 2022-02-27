@@ -37,7 +37,7 @@ See also: `path-relative-to'"
   "True if FILENAME is a supported image type."
   (when-let* ((ext-pos (position #\. filename :from-end t))
               (extension (subseq filename (1+ ext-pos))))
-    (member (my-intern extension :keyword) (list :png :gif))))
+    (member (upcase-intern extension :keyword) (list :png :gif))))
 
 (defun file-name-sans-suffix (filename)
   "Get the name of FILENAME sans its file extension.
