@@ -82,7 +82,7 @@ PATHS-RELATIVE-TO specifies where to make the paths for image filenames relative
      :for filename := (namestring file)
      :for tile-name := (file-name-sans-suffix filename)
      :if (image-p filename)
-     :do (add-tile tileset (my-intern tile-name :keyword) filename)))
+     :do (add-tile tileset (upcase-intern tile-name :keyword) filename)))
 
 (defclass zone ()
   ((name :initarg :name :initform nil :accessor name-of :type (or nil string) :documentation "The name of the zone.")
