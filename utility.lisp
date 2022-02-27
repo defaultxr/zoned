@@ -62,7 +62,7 @@ Example:
          (split-dir (split-sequence #\/ relative-to :remove-empty-subseqs t))
          (common (common-subseqs-left split-file split-dir)))
     (concatenate 'string
-                 (cl-strings:join (make-list (length (subseq split-dir common)) :initial-element "..") :separator "/")
+                 (str:join "/" (make-list (length (subseq split-dir common)) :initial-element ".."))
                  "/"
-                 (cl-strings:join (subseq split-file common) :separator "/"))))
+                 (str:join "/" (subseq split-file common)))))
 
