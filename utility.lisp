@@ -58,8 +58,8 @@ Example:
 
 ;; (path-relative-to \"/home/user/blah/foo.txt\" \"/home/user/my-folder/\")
 ;; ;=> \"../blah/foo.txt\""
-  (let* ((split-file (split-sequence #\/ filename :remove-empty-subseqs t))
-         (split-dir (split-sequence #\/ relative-to :remove-empty-subseqs t))
+  (let* ((split-file (sequence-split #\/ filename :remove-empty-subseqs t))
+         (split-dir (sequence-split #\/ relative-to :remove-empty-subseqs t))
          (common (common-subseqs-left split-file split-dir)))
     (concatenate 'string
                  (str:join "/" (make-list (length (subseq split-dir common)) :initial-element ".."))
