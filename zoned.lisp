@@ -20,8 +20,9 @@ See also: `*theme*'"
 
 ;;; gui
 
-(defclass graphical-view (view)
-  ())
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defclass graphical-view (view)
+    ()))
 
 (defconstant +graphical-view+ (make-instance 'graphical-view))
 
