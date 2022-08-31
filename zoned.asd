@@ -26,6 +26,7 @@
   :version "0.1"
   :depends-on (#:alexandria
                #:mutility
+               #:mutility/loopy
                #:str)
   :pathname "src/"
   :serial t
