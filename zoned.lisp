@@ -255,12 +255,12 @@ See also: `*theme*'"
   (ed (asdf:system-relative-pathname :zoned "README.org")))
 
 (define-command (com-repo :name t :menu t
-                          :command-table zoned-common-help-command-table)
+                          :command-table zoned-help-command-table)
     ()
   (open-url (asdf:system-homepage (asdf:find-system :zoned t))))
 
 (define-command (com-bugs :name t :menu t
-                          :command-table zoned-common-help-command-table)
+                          :command-table zoned-help-command-table)
     ()
   (open-url (asdf:system-bug-tracker (asdf:find-system :zoned t))))
 
