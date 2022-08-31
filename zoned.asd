@@ -1,3 +1,5 @@
+;;;; zoned.asd - asdf system definitions for zoned and subsystems.
+
 (asdf:defsystem #:zoned
   :name "zoned"
   :description "Tile-based 2D video game map editor"
@@ -17,6 +19,7 @@
                (:file "zoned")))
 
 (asdf:defsystem #:zoned/zone
+  :name "zoned/zone"
   :description "Zoned zone classes and functionality without the GUI bits"
   :author "modula t."
   :license "MIT"
