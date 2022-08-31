@@ -11,6 +11,7 @@
   :depends-on (#:zoned/zone
                #:mcclim
                #:mcclim-bitmaps)
+  :pathname "src/"
   :serial t
   :components ((:file "zoned-package")
                (:file "zoned")))
@@ -20,10 +21,11 @@
   :author "modula t."
   :license "MIT"
   :version "0.1"
-  :serial t
   :depends-on (#:alexandria
                #:mutility
                #:str)
+  :pathname "src/"
+  :serial t
   :components ((:file "zone-package")
                (:file "utility")
                (:file "zone")))
